@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visual Geographic Match Finder</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Upload View -->
+    <div id="uploadView" class="view active">
+        <div class="container">
+            <header class="hero-section">
+                <h1 class="hero-title">Visual Geographic Match Finder</h1>
+                <p class="hero-subtitle">Find visually similar places worldwide using AI and open geographic data</p>
+            </header>
+            
+            <div class="upload-section">
+                <div class="upload-zone" id="uploadZone">
+                    <div class="upload-content">
+                        <div class="upload-icon">📁</div>
+                        <h3>Drop your image or video here</h3>
+                        <p>Or click to browse files</p>
+                        <p class="file-types">Supports: JPG, PNG, MP4, WebM</p>
+                    </div>
+                    <input type="file" id="fileInput" accept="image/*,video/*" hidden>
+                </div>
+                
+                <div id="filePreview" class="file-preview hidden">
+                    <div class="preview-content">
+                        <div id="previewMedia"></div>
+                        <div class="file-info">
+                            <span id="fileName"></span>
+                            <span id="fileSize"></span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="semantic-input">
+                    <label for="locationInput" class="form-label">Optional: Filter by city or region</label>
+                    <input type="text" id="locationInput" class="form-control" placeholder="e.g. Hannover, Germany">
+                    <p class="helper-text">Enter a city or region name to restrict search (e.g., 'Hannover, Germany') or leave blank for global results</p>
+                </div>
+                
+                <button id="analyzeBtn" class="btn btn--primary btn--lg analyze-btn" disabled>
+                    <span class="btn-text">Analyze and Find Matches</span>
+                    <span class="btn-icon">🔍</span>
+                </button>
+            </div>
+            
+            <div class="info-section">
+                <div class="info-card">
+                    <h3>How it works</h3>
+                    <p>Upload an image or video of a geographic location (street, square, landscape). Our AI will find visually similar places from Mapillary's street-level imagery database using advanced computer vision.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Processing View -->
+    <div id="processingView" class="view">
+        <div class="container">
+            <div class="processing-content">
+                <div class="processing-animation">
+                    <div class="scanner"></div>
+                </div>
+                <h2>Analyzing your image...</h2>
+                <p id="processingMessage">Preparing analysis...</p>
+                <div class="progress-container">
+                    <div class="progress-bar">
+                        <div id="progressFill" class="progress-fill"></div>
+                    </div>
+                    <span id="progressText">0%</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Results View -->
+    <div id="resultsView" class="view">
+        <div class="results-header">
+            <div class="container">
+                <div class="results-controls">
+                    <div class="results-left">
+                        <button id="newSearchBtn" class="btn btn--primary new-search-btn">
+                            <span class="btn-icon">←</span>
+                            <span class="btn-text">New Search</span>
+                        </button>
+                    </div>
+                    <div class="results-center">
+                        <h2 id="resultsTitle">Found 10 similar locations</h2>
+                        <p id="locationRestriction" class="location-restriction hidden"></p>
+                    </div>
+                    <div class="results-right">
+                        <button id="aboutDemoBtn" class="btn btn--secondary about-demo-btn">
+                            <span class="btn-icon">ℹ️</span>
+                            <span class="btn-text">About This Demo</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="filters-row">
+                    <div class="filters">
+                        <div class="filter-group">
+                            <label for="similaritySlider">Min. Similarity: <span id="similarityValue">70</span>%</label>
+                            <input type="range" id="similaritySlider" min="50" max="100" value="70" class="slider">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="results-content">
+            <div class="map-container">
+                <div id="map"></div>
+            </div>
+            
+            <div class="results-panel">
+                <div class="results-list" id="resultsList">
+                    <!-- Results will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Image Modal -->
+    <div id="imageModal" class="modal hidden">
+        <div class="modal-overlay" id="modalOverlay"></div>
+        <div class="modal-content">
+            <button class="modal-close" id="modalClose">&times;</button>
+            <div class="modal-navigation">
+                <button class="nav-btn nav-prev" id="navPrev">&#8249;</button>
+                <button class="nav-btn nav-next" id="navNext">&#8250;</button>
+            </div>
+            <div class="modal-image-container">
+                <div id="modalImage"></div>
+            </div>
+            <div class="modal-info">
+                <h3 id="modalLocation"></h3>
+                <div class="modal-details">
+                    <span id="modalSimilarity"></span>
+                    <span id="modalDate"></span>
+                    <span id="modalPhotographer"></span>
+                    <span id="modalCoordinates"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Prototype Demo Modal -->
+    <div id="prototypeDemoModal" class="modal hidden">
+        <div class="modal-overlay" id="demoModalOverlay"></div>
+        <div class="modal-content demo-modal-content">
+            <button class="modal-close" id="demoModalClose">&times;</button>
+            <div class="demo-modal-body">
+                <h3>🔬 Prototype Demo Mode</h3>
+                <p class="demo-description">This is a demonstration prototype using simulated data to showcase the application concept and user interface.</p>
+                
+                <div class="demo-section">
+                    <h4>✅ In production, this app would:</h4>
+                    <ul class="demo-features">
+                        <li>Use OpenAI CLIP model for real image similarity matching</li>
+                        <li>Search Mapillary's street-level imagery database via API</li>
+                        <li>Use Nominatim (OpenStreetMap) for geocoding city/location names</li>
+                        <li>Restrict searches to geographic bounding boxes</li>
+                        <li>Display actual street-view images from Mapillary</li>
+                        <li>Compute real-time visual similarity scores</li>
+                        <li>Support video frame extraction and analysis</li>
+                    </ul>
+                </div>
+                
+                <div class="demo-section">
+                    <h4>⚠️ Current limitations:</h4>
+                    <ul class="demo-limitations">
+                        <li>Currently uses pre-defined sample locations</li>
+                        <li>Similarity scores are simulated</li>
+                        <li>Images are placeholder representations</li>
+                        <li>Limited to Hannover, Germany sample data or global preset locations</li>
+                    </ul>
+                </div>
+                
+                <div class="demo-section">
+                    <h4>🧪 Try these examples:</h4>
+                    <ul class="demo-examples">
+                        <li>Try entering 'Hannover, Germany' to see location-filtered results</li>
+                        <li>Leave location blank for diverse global results</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- No Results Modal -->
+    <div id="noResultsModal" class="modal hidden">
+        <div class="modal-overlay" id="noResultsOverlay"></div>
+        <div class="modal-content no-results-content">
+            <button class="modal-close" id="noResultsClose">&times;</button>
+            <div class="no-results-body">
+                <h3>🔍 No matches found</h3>
+                <p id="noResultsLocation">No matches found for 'Paris'</p>
+                <p class="no-results-help">This prototype currently has sample data only for: <strong>Hannover, Germany</strong>, or global results (leave location blank)</p>
+                <button id="tryAnotherSearch" class="btn btn--primary">Try Another Search</button>
+            </div>
+        </div>
+    </div>
+    
+    <button id="infoBtn" class="info-button" title="Information">
+        <span>?</span>
+    </button>
+    
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
