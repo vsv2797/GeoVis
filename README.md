@@ -273,7 +273,7 @@ Result: 52.37°N, 9.73°E ± 5km
 **Step 3: Image Retrieval (2s)**
 ```
 Mapillary API Query → Filter by Bbox → Download Metadata
-Result: 85 street-view images found
+Result: 85 street-view images found.
 ```
 
 **Step 4: Feature Extraction (15-30s)**
