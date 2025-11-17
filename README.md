@@ -40,7 +40,7 @@
 - 🌳 **Discover Similar Parks** - Match garden scenes with other green spaces
 - 🏙️ **Urban Planning** - Compare city squares and public spaces
 - 📸 **Photo Geolocation** - Identify possible locations from unknown photos
-- 🎓 **Academic Research** - Study visual similarity in geographic contexts
+- 🎓 **Academic Research** - Study visual similarity in geographic context
 
 ---
 
