@@ -572,7 +572,7 @@ for idx, img_data in enumerate(mapillary_images[:20]):  # Was [:50]
 
 ## 🎓 Academic Context
 
-### Master's Thesis Project
+### Master's Study Project
 
 **Institution:** Leibniz University Hannover  
 **Program:** M.Sc. Geodesy and Geoinformatics  
@@ -658,7 +658,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 - Open GitHub issue
 
 **For Academic Inquiries:**
-- Contact: [Your email]
+- Contact: [vsv2745@gmail.com]
 - Institution: Leibniz University Hannover
 - Program: M.Sc. Geodesy and Geoinformatics
 
